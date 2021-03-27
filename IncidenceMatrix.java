@@ -1,5 +1,6 @@
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Incidence matrix implementation for the GraphInterface interface.
@@ -22,7 +23,13 @@ public class IncidenceMatrix extends AbstractGraph
 
 
     public void addVertex(String vertLabel) {
-        // Implement me!
+        // Check if vertex already exists
+        if (getIndices().containsKey(vertLabel))
+            System.err.println("This vertex already exists.");
+        else {
+            getIndices().put(vertLabel, getIndices().size());
+            getSirStates().put(vertLabel, SIRState.S);
+        }
     } // end of addVertex()
 
 
@@ -42,7 +49,19 @@ public class IncidenceMatrix extends AbstractGraph
 
 
     public void deleteVertex(String vertLabel) {
-        // Implement me!
+        // Check if the key is present
+        if (!getIndices().containsKey(vertLabel) || !getSirStates().containsKey(vertLabel))
+            System.err.println("Couldn't find the vertex.");
+        else {
+            // Move the indices of behind vertices forwards
+            for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
+                if (entry.getValue() > getIndices().get(vertLabel))
+                    entry.setValue(entry.getValue() - 1);
+            }
+            // Delete the entry in the maps
+            getIndices().remove(vertLabel);
+            getSirStates().remove(vertLabel);
+        }
     } // end of deleteVertex()
 
 

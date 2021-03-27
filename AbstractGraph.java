@@ -12,7 +12,7 @@ import java.util.HashMap;
  */
 public abstract class AbstractGraph implements ContactsGraph
 {
-
+    // key-value
     private HashMap<String, Integer> indices;
     private HashMap<String, SIRState> sirStates;
 
