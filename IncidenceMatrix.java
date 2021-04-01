@@ -16,7 +16,7 @@ public class IncidenceMatrix extends AbstractGraph
     private HashMap<String, Integer> edgeIndices;
 
 	/**
-	 * Contructs empty graph.
+	 * Construct empty graph.
 	 */
     public IncidenceMatrix() {
         matrix = null;
@@ -36,7 +36,7 @@ public class IncidenceMatrix extends AbstractGraph
             // Insert the row of the new vertex into the matrix
             if (matrix != null) {
                 boolean[][] tempMatrix = new boolean[matrix.length + 1][matrix[0].length];
-                for (int i = 0; i < matrix.length; i ++) {
+                for (int i = 0; i < matrix.length; i++) {
                     for (int j = 0; j < matrix[0].length; j++) {
                         tempMatrix[i][j] = matrix[i][j];
                     }
@@ -56,8 +56,8 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Check if both vertices are present
-        if (getIndices().containsKey(srcLabel)
-                && getIndices().containsKey(tarLabel)) {
+        if (!getIndices().containsKey(srcLabel)
+                || !getIndices().containsKey(tarLabel)) {
             System.err.println("At least one vertex is not present");
             return;
         }
@@ -72,8 +72,8 @@ public class IncidenceMatrix extends AbstractGraph
         else {
             // Insert the column of the new edge into the matrix
             boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length + 1];
-            for (int i = 0; i < matrix.length; i ++) {
-                for (int j = 0; j < matrix[0].length; j ++) {
+            for (int i = 0; i < matrix.length; i++) {
+                for (int j = 0; j < matrix[0].length; j++) {
                     tempMatrix[i][j] = matrix[i][j];
                 }
             }
@@ -125,7 +125,7 @@ public class IncidenceMatrix extends AbstractGraph
             matrix = null;
         else {
             boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length - 1];
-            for (int i = 0; i < matrix.length; i ++) {
+            for (int i = 0; i < matrix.length; i++) {
                 for (int j = 0; j < matrix[0].length; j++) {
                     // Copy the columns as is until reach the column to be deleted
                     if (j < edgeIndex)
@@ -150,63 +150,123 @@ public class IncidenceMatrix extends AbstractGraph
     public void deleteVertex(String vertLabel) {
         // Check if the vertex is present
         if (!getIndices().containsKey(vertLabel)
-                || !getSirStates().containsKey(vertLabel))
+                || !getSirStates().containsKey(vertLabel)) {
             System.err.println("The vertex is not present in the graph");
+            return;
+        }
+
+        // Remove all edges of the vertex
+        for (String edgeLabel : edgeIndices.keySet())
+            if (edgeLabel.contains(vertLabel))
+                deleteEdge(edgeLabel.substring(0, 1), edgeLabel.substring(1));
+
+        // Remove the row of the vertex from the matrix
+        if (matrix.length == 1)
+            matrix = null;
         else {
-            // Remove all edges of the vertex
-
-
-            // Remove the row of the vertex from the matrix
-            if (matrix.length == 1)
-                matrix = null;
-            else {
-                boolean[][] tempMatrix = new boolean[matrix.length - 1][matrix[0].length];
-                for (int i = 0; i < matrix.length; i ++) {
-                    // Copy the rows as is until reach the row to be deleted
-                    if (i < getIndices().get(vertLabel)) {
-                        for (int j = 0; j < matrix[0].length; j++) {
-                            tempMatrix[i][j] = matrix[i][j];
-                        }
-                    }
-                    // Skip the row to be deleted
-                    // Move up the following rows
-                    else if (i > getIndices().get(vertLabel)) {
-                        for (int j = 0; j < matrix[0].length; j++) {
-                            tempMatrix[i][j] = matrix[i + 1][j];
-                        }
+            boolean[][] tempMatrix = new boolean[matrix.length - 1][matrix[0].length];
+            for (int i = 0; i < matrix.length; i++) {
+                // Copy the rows as is until reach the row to be deleted
+                if (i < getIndices().get(vertLabel)) {
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        tempMatrix[i][j] = matrix[i][j];
                     }
                 }
-                matrix = tempMatrix;
+                // Skip the row to be deleted
+                // Move up the following rows
+                else if (i > getIndices().get(vertLabel)) {
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        tempMatrix[i][j] = matrix[i + 1][j];
+                    }
+                }
             }
-
-            // Move the indices of behind vertices forward
-            for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
-                if (entry.getValue() > getIndices().get(vertLabel))
-                    entry.setValue(entry.getValue() - 1);
-            }
-
-            // Delete the vertex in the maps
-            getIndices().remove(vertLabel);
-            getSirStates().remove(vertLabel);
+            matrix = tempMatrix;
         }
+
+        // Move the indices of behind vertices forward
+        for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
+            if (entry.getValue() > getIndices().get(vertLabel))
+                entry.setValue(entry.getValue() - 1);
+        }
+
+        // Delete the vertex in the maps
+        getIndices().remove(vertLabel);
+        getSirStates().remove(vertLabel);
     } // end of deleteVertex()
 
 
     public String[] kHopNeighbours(int k, String vertLabel) {
-        // Implement me!
+        if (k == 0)
+            return null;
 
-        // please update!
-        return null;
+        String[] neighbours = null;
+
+        // BFS
+        int depth = 0;  // Define "depth" as the number of hops away from the initial vertex
+        String[] visited = {vertLabel};  // Store the vertices visited in the last depth
+        while (depth < k) {
+            // Locate the source vertex visited in the last depth
+            for (int m = 0; m < visited.length; m++) {
+                int rowIndex = getIndices().get(visited[m]);
+                // Find the edges associated with the source vertex
+                for (int j = 0; j < matrix[0].length; j++) {
+                    if (matrix[rowIndex][j] == true) {
+                        // Use the edge to find the index of the target vertex
+                        for (int i = 0; i < matrix.length; i++) {
+                            if (matrix[i][j] == true) {
+                                // Retrieve the label of the target vertex with its index
+                                String tarVertex = null;
+                                for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
+                                    if (entry.getValue() == i) {
+                                        tarVertex = entry.getKey();
+                                        break;
+                                    }
+                                }
+                                // Check if this vertex has already been visited
+                                boolean isVisited = false;
+                                for (String visitedVertex : neighbours) {
+                                    if (tarVertex.equals(visitedVertex)) {
+                                        isVisited = true;
+                                        break;
+                                    }
+                                }
+//                                if (!isVisited) {
+//                                    // Add the target vertex into the array of neighbours
+//                                    if (neighbours == null)
+//                                        neighbours = new String[]{entry.getKey()};
+//                                    else {
+//                                        String[] temp = new String[neighbours.length + 1];
+//                                        for (int n = 0; n < neighbours.length; n++)
+//                                            temp[n] = neighbours[n];
+//                                        temp[temp.length - 1] = entry.getKey();
+//                                        neighbours = temp;
+//                                    }
+//                                    //
+//                                }
+
+                            }
+                        }
+                    }
+                }
+                depth++;
+            }
+        }
+
+        return neighbours;
     } // end of kHopNeighbours()
 
 
     public void printVertices(PrintWriter os) {
-        // TODO start new task from here!
+        for (Map.Entry<String, SIRState> entry : getSirStates().entrySet()) {
+            os.print("(" + entry.getKey() + ", " + entry.getValue() + ") ");
+        }
     } // end of printVertices()
 
 
     public void printEdges(PrintWriter os) {
-        // Implement me!
+        for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
+            os.println(entry.getKey());
+        }
     } // end of printEdges()
 
 } // end of class IncidenceMatrix

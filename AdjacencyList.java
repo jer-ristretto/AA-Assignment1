@@ -11,22 +11,26 @@ import java.io.PrintWriter;
 public class AdjacencyList extends AbstractGraph
 {
 
+    private LinkedList[] linkedLists;
+
+
     /**
 	 * Contructs empty graph.
 	 */
     public AdjacencyList() {
-    	 // Implement me!
-
+        linkedLists = null;
     } // end of AdjacencyList()
 
 
     public void addVertex(String vertLabel) {
         // Implement me!
+
     } // end of addVertex()
 
 
     public void addEdge(String srcLabel, String tarLabel) {
         // Implement me!
+
     } // end of addEdge()
 
 
@@ -62,4 +66,109 @@ public class AdjacencyList extends AbstractGraph
         // Implement me!
     } // end of printEdges()
 
+
+    private class LinkedList {
+
+        private Node head;
+        private int length;
+
+
+        public void add(int newValue) {
+            Node newNode = new Node(newValue);
+
+            // If head is empty, then list is empty and head reference need to be initialised.
+            if (head == null) {
+                head = newNode;
+            }
+            // otherwise, add node to the head of list.
+            else {
+                newNode.setNext(head);
+                head = newNode;
+            }
+
+            length++;
+        }
+
+        
+        public boolean remove(String vertLabel) {
+            if (length == 0) {
+                return false;
+            }
+
+            Node currNode = head;
+            Node prevNode = null;
+
+            // check if value is head node
+            if (currNode.getVertex().equals(vertLabel)) {
+                head = currNode.getNext();
+                length--;
+                return true;
+            }
+
+            prevNode = currNode;
+            currNode = currNode.getNext();
+
+            // scan through list to find node to delete
+            while (currNode != null) {
+                if (currNode.getVertex().equals(vertLabel)) {
+                    prevNode.setNext(currNode.getNext());
+                    currNode = null;
+                    length--;
+                    return true;
+                }
+                prevNode = currNode;
+                currNode = currNode.getNext();
+            }
+
+            return false;
+        }
+
+
+        public String get(int index) throws IndexOutOfBoundsException {
+            if (index >= length || index < 0) {
+                throw new IndexOutOfBoundsException("Supplied index is invalid.");
+            }
+
+            Node currNode = head;
+            for (int i = 0; i < index; ++i) {
+                currNode = currNode.getNext();
+            }
+
+            return currNode.getVertex();
+        }
+
+
+        private class Node {
+            /** Stored value of node. */
+            protected String vertLabel;
+            /** Reference to next node. */
+            protected Node nextNode;
+
+
+            public Node(int vertLabel) {
+                vertLabel = vertLabel;
+                nextNode = null;
+            }
+
+
+            public String getVertex() {
+                return vertLabel;
+            }
+
+
+            public Node getNext() {
+                return nextNode;
+            }
+
+
+            public void setVertex(String vertLabel) {
+                this.vertLabel = vertLabel;
+            }
+
+
+            public void setNext(Node next) {
+                this.nextNode = next;
+            }
+        }
+    }
 } // end of class AdjacencyList
