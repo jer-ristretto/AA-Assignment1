@@ -205,14 +205,19 @@ public class IncidenceMatrix extends AbstractGraph
         // Define "depth" as the number of hops away from the initial vertex
         int depth = 0;
         // Store the vertices visited in the last depth
-        String[] visited = {vertLabel};
+        String[] lastVisited = {vertLabel};
         while (depth < k) {
-            String[] tempVisited = null;
-            // Locate the source vertex visited in the last depth
-            for (int m = 0; m < visited.length; m++) {
-                String srcVertex = visited[m];
+            // Terminate BFS when no more vertex is visited in the last depth
+            if (lastVisited == null)
+                return neighbours;
+
+            String[] currVisited = null;
+
+            // Locate the vertices visited in the last depth
+            for (int m = 0; m < lastVisited.length; m++) {
+                String srcVertex = lastVisited[m];
                 int rowIndex = getIndices().get(srcVertex);
-                // Find the edges associated with the source vertex
+                // Find the edges associated with the vertices
                 for (int j = 0; j < matrix[0].length; j++) {
                     if (matrix[rowIndex][j] == true) {
                         // Use the edge to find the index of the target vertex
@@ -255,14 +260,14 @@ public class IncidenceMatrix extends AbstractGraph
                                         neighbours = temp;
                                     }
                                     // Record the target vertex visited in the current depth
-                                    if (tempVisited == null)
-                                        tempVisited = new String[]{tarVertex};
+                                    if (currVisited == null)
+                                        currVisited = new String[]{tarVertex};
                                     else {
                                         String[] temp = new String[neighbours.length + 1];
                                         for (int n = 0; n < temp.length; n++)
-                                            temp[n] = tempVisited[n];
+                                            temp[n] = currVisited[n];
                                         temp[temp.length - 1] = tarVertex;
-                                        tempVisited = temp;
+                                        currVisited = temp;
                                     }
                                 }
                             }
@@ -271,7 +276,7 @@ public class IncidenceMatrix extends AbstractGraph
                 }
             }
             depth++;
-            visited = tempVisited;
+            lastVisited = currVisited;
         }
 
         return neighbours;

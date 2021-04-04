@@ -1,5 +1,5 @@
 import java.io.PrintWriter;
-// import java.util.*;
+import java.util.Map;
 
 /**
  * Adjacency list implementation for the AssociationGraph interface.
@@ -11,14 +11,14 @@ import java.io.PrintWriter;
 public class AdjacencyList extends AbstractGraph
 {
 
-    private LinkedList[] linkedLists;
+    private EdgeList[] edgeLists;
 
 
     /**
 	 * Contructs empty graph.
 	 */
     public AdjacencyList() {
-        linkedLists = null;
+        edgeLists = null;
     } // end of AdjacencyList()
 
 
@@ -29,8 +29,28 @@ public class AdjacencyList extends AbstractGraph
 
 
     public void addEdge(String srcLabel, String tarLabel) {
-        // Implement me!
+        // Check if both vertices are present
+        if (!getIndices().containsKey(srcLabel)
+                || !getIndices().containsKey(tarLabel)) {
+            System.err.println("At least one vertex is not present");
+            return;
+        }
 
+        // Check duplicate edge
+        EdgeList srcList = edgeLists[getIndices().get(srcLabel)];
+        if (srcList != null && srcList.contain(tarLabel)) {
+            System.err.println("Found duplicate edge");
+            return;
+        }
+
+        // Add the edges to the adjacency lists of both source and target vertex
+        if (srcList == null)
+            srcList = new EdgeList();
+        EdgeList tarList = edgeLists[getIndices().get(tarLabel)];
+        if (tarList == null)
+            tarList = new EdgeList();
+        srcList.add(tarLabel);
+        tarList.add(srcLabel);
     } // end of addEdge()
 
 
@@ -40,7 +60,23 @@ public class AdjacencyList extends AbstractGraph
 
 
     public void deleteEdge(String srcLabel, String tarLabel) {
-        // Implement me!
+        // Check if the edge is present
+        Integer srcIndex = getIndices().get(srcLabel);
+        if (srcIndex == null) {
+            System.err.println("The edge is not present");
+            return;
+        }
+        EdgeList srcList = edgeLists[srcIndex];
+        if (!srcList.contain(tarLabel)) {
+            System.err.println("The edge is not present");
+            return;
+        }
+
+        // Remove the edges from the adjacency lists of both source and target vertex
+        Integer tarIndex = getIndices().get(tarLabel);
+        EdgeList tarList = edgeLists[tarIndex];
+        srcList.remove(tarLabel);
+        tarList.remove(srcLabel);
     } // end of deleteEdge()
 
 
@@ -50,10 +86,37 @@ public class AdjacencyList extends AbstractGraph
 
 
     public String[] kHopNeighbours(int k, String vertLabel) {
-        // Implement me!
+        if (k == 0) {
+            return null;
+        }
 
-        // please update!
-        return null;
+        String[] neighbours = null;
+
+        // BFS
+        // Define "depth" as the number of hops away from the initial vertex
+        int depth = 0;
+        // Store the vertices visited in the last depth
+        String[] lastVisited = {vertLabel};
+        while (depth < k) {
+            // Terminate BFS when no more vertex is visited in the last depth
+            if (lastVisited == null)
+                return neighbours;
+
+            String[] currVisited = null;
+
+            // Locate the vertices visited in the last depth
+            for (int m = 0; m < lastVisited.length; m++) {
+                String srcVertex = lastVisited[m];
+                EdgeList list = edgeLists[getIndices().get(srcVertex)];
+                // Add the target vertices into neighbours and vertices visited in the current depth
+                neighbours = list.addToArray(neighbours);
+                currVisited = list.addToArray(currVisited);
+            }
+            depth++;
+            lastVisited = currVisited;
+        }
+
+        return neighbours;
     } // end of kHopNeighbours()
 
 
@@ -63,18 +126,21 @@ public class AdjacencyList extends AbstractGraph
 
 
     public void printEdges(PrintWriter os) {
-        // Implement me!
+        for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
+            EdgeList list = edgeLists[entry.getValue()];
+            list.printEdges(entry.getKey(), os);
+        }
     } // end of printEdges()
 
 
-    private class LinkedList {
+    private class EdgeList {
 
         private Node head;
         private int length;
 
 
-        public void add(int newValue) {
-            Node newNode = new Node(newValue);
+        public void add(String vertLabel) {
+            Node newNode = new Node(vertLabel);
 
             // If head is empty, then list is empty and head reference need to be initialised.
             if (head == null) {
@@ -138,15 +204,70 @@ public class AdjacencyList extends AbstractGraph
         }
 
 
+        public boolean contain(String vertex) {
+            Node currNode = head;
+            for (int i = 0; i < length; ++i) {
+                if (currNode.getVertex().equals(vertex)) {
+                    return true;
+                }
+                currNode = currNode.getNext();
+            }
+
+            return false;
+        }
+
+
+        public void printEdges(String srcLabel, PrintWriter os) {
+            Node currNode = head;
+            for (int i = 0; i < length; i++) {
+                os.println(srcLabel + currNode.getVertex());
+                currNode = currNode.getNext();
+            }
+        }
+
+
+        public String[] addToArray(String[] arr) {
+            Node currNode = head;
+            for (int i = 0; i < length; i++) {
+                if (arr == null) {
+                    arr = new String[1];
+                    arr[0] = currNode.getVertex();
+                }
+                else {
+                    String vertex = currNode.getVertex();
+
+                    // Skip the vertex if it has already been visited
+                    boolean isVisited = false;
+                    for (String vertLabel : arr) {
+                        if (vertLabel.equals(vertex)) {
+                            isVisited = true;
+                            break;
+                        }
+                    }
+                    if (isVisited)
+                        break;
+
+                    String[] temp = new String[arr.length + 1];
+                    for (int j = 0; j < arr.length; j++)
+                        temp[j] = arr[j];
+                    temp[temp.length - 1] = vertex;
+                    arr = temp;
+                }
+                currNode.getNext();
+            }
+
+            return arr;
+        }
+
+
         private class Node {
-            /** Stored value of node. */
+
             protected String vertLabel;
-            /** Reference to next node. */
             protected Node nextNode;
 
 
-            public Node(int vertLabel) {
-                vertLabel = vertLabel;
+            public Node(String vertLabel) {
+                this.vertLabel = vertLabel;
                 nextNode = null;
             }
 
@@ -158,11 +279,6 @@ public class AdjacencyList extends AbstractGraph
 
             public Node getNext() {
                 return nextNode;
-            }
-
-
-            public void setVertex(String vertLabel) {
-                this.vertLabel = vertLabel;
             }
 
 
