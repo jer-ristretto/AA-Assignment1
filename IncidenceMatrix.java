@@ -130,9 +130,8 @@ public class IncidenceMatrix extends AbstractGraph
                     // Copy the columns as is until reach the column to be deleted
                     if (j < edgeIndex)
                         tempMatrix[i][j] = matrix[i][j];
-                    // Skip the column to be deleted
                     //Move the following columns to the left
-                    else if (j > edgeIndex)
+                    else
                         tempMatrix[i][j] = matrix[i][j + 1];
                 }
             }
@@ -174,7 +173,7 @@ public class IncidenceMatrix extends AbstractGraph
                 }
                 // Skip the row to be deleted
                 // Move up the following rows
-                else if (i > getIndices().get(vertLabel)) {
+                else {
                     for (int j = 0; j < matrix[0].length; j++) {
                         tempMatrix[i][j] = matrix[i + 1][j];
                     }
