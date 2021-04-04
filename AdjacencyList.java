@@ -142,15 +142,10 @@ public class AdjacencyList extends AbstractGraph
         public void add(String vertLabel) {
             Node newNode = new Node(vertLabel);
 
-            // If head is empty, then list is empty and head reference need to be initialised.
-            if (head == null) {
-                head = newNode;
-            }
-            // otherwise, add node to the head of list.
-            else {
+            if (head != null)
                 newNode.setNext(head);
-                head = newNode;
-            }
+
+            head = newNode;
 
             length++;
         }
@@ -253,7 +248,7 @@ public class AdjacencyList extends AbstractGraph
                     temp[temp.length - 1] = vertex;
                     arr = temp;
                 }
-                currNode.getNext();
+                currNode = currNode.getNext();
             }
 
             return arr;
