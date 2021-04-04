@@ -15,7 +15,7 @@ public class AdjacencyList extends AbstractGraph
 
 
     /**
-	 * Contructs empty graph.
+	 * Constructs empty graph.
 	 */
     public AdjacencyList() {
         edgeLists = null;
