@@ -57,8 +57,13 @@ public class AdjacencyMatrix extends AbstractGraph {
 
 		// Checking if label exists
 		if ((getIndices().containsKey(srcLabel)) && (getIndices().containsKey(tarLabel))) {
-			a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] = 1;
-			a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] = 1;
+			if (a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] == 1
+					|| a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] == 1)
+				System.err.println("Edge already exists.");
+			else {
+				a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] = 1;
+				a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] = 1;
+			}
 		} else if (!(getIndices().containsKey(srcLabel)))
 			System.err.println("Source Vertex dosen't exist. Please enter an existing vertex.");
 		else if (!(getIndices().containsKey(tarLabel)))
@@ -82,8 +87,13 @@ public class AdjacencyMatrix extends AbstractGraph {
 	public void deleteEdge(String srcLabel, String tarLabel) {
 
 		if ((getIndices().containsKey(srcLabel)) && (getIndices().containsKey(tarLabel))) {
-			a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] = 0;
-			a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] = 0;
+			if (a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] == 0
+					&& a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] == 0)
+				System.err.println("Target Edge doesn't exist.");
+			else {
+				a_matrix[getIndices().get(srcLabel)][getIndices().get(tarLabel)] = 0;
+				a_matrix[getIndices().get(tarLabel)][getIndices().get(srcLabel)] = 0;
+			}
 		} else if (!(getIndices().containsKey(srcLabel)))
 			System.err.println("Source Vertex doesn't exist. Please enter an existing vertex.");
 		else if (!(getIndices().containsKey(tarLabel)))
@@ -178,10 +188,8 @@ public class AdjacencyMatrix extends AbstractGraph {
 			String arr_neighbours[] = new String[size - 1];
 			for (int i = 1; i < size; i++) {
 				for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
-					if (arr_queue[i] == entry.getValue()) {
-						System.out.println("Hello " + arr_queue[i]);
+					if (arr_queue[i] == entry.getValue()) 
 						arr_neighbours[i - 1] = entry.getKey();
-					}
 				}
 			}
 			return arr_neighbours;
@@ -192,7 +200,8 @@ public class AdjacencyMatrix extends AbstractGraph {
 		// is the output format fine??
 		System.out.println(getIndices().keySet());
 		for (Map.Entry<String, SIRState> entry : getSirStates().entrySet())
-			System.out.print("(" + entry.getKey() + ", " + entry.getValue() + ")");
+			System.out.print("(" + entry.getKey() + "," + entry.getValue() + ")	");
+			System.out.println();
 
 	} // end of printVertices()
 
