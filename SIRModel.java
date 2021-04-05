@@ -31,11 +31,11 @@ public class SIRModel {
 		int t = 1;
 		boolean cont = true;
 		String[] infected = null;
-		String[] recovered = null;
+		DynamicArray<String> recovered = new DynamicArray<String>();
 
 		while (cont) {
 			String[] newInfected = null;
-			String[] newRecovered = null;
+			DynamicArray<String> newRecovered = new DynamicArray<String>();
 			newInfected = updatedInfected(infectionProb, seedVertices);
 			// infected = infected+ newInfected; copy the elements of newInfected to
 			// infected array
@@ -44,10 +44,27 @@ public class SIRModel {
 
 	} // end of runSimulation()
 
+
 	private String[] updatedInfected(float infectionProb, String[] seedVertices) {
 		// TODO Auto-generated method stub
 		String[] newseedVertices = null;
 
 		return newseedVertices;
+	}
+
+
+	private DynamicArray<String> updateRecovered(ContactsGraph graph, DynamicArray<String> infected, float recoverProb) {
+		DynamicArray<String> newRecovered = new DynamicArray<String>();
+		for (int i = 0; i < infected.getSize(); i++) {
+			float random = (float) Math.random();
+			if (random < recoverProb) {
+				String recoveredVert = infected.get(i);
+				graph.toggleVertexState(recoveredVert);
+				newRecovered.add(recoveredVert);
+				infected.remove(i);
+			}
+		}
+
+		return newRecovered;
 	}
 } // end of class SIRModel
