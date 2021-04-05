@@ -287,7 +287,6 @@ public class IncidenceMatrix extends AbstractGraph
             os.print("(" + entry.getKey() + ", " + entry.getValue() + ") ");
         }
         os.println();
-        os.flush();
     } // end of printVertices()
 
 
