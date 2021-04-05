@@ -154,8 +154,7 @@ public class AdjacencyList extends AbstractGraph {
 			for (int m = 0; m < lastVisited.length; m++) {
 				String srcVertex = lastVisited[m];
 				EdgeList list = edgeLists[getIndices().get(srcVertex)];
-				// Add the target vertices into neighbours and vertices visited in the current
-				// depth
+				// Add the target vertices into neighbours and vertices visited in the current depth
 				neighbours = list.addToArray(neighbours);
 				currVisited = list.addToArray(currVisited);
 			}
@@ -268,7 +267,8 @@ public class AdjacencyList extends AbstractGraph {
 				if (arr == null) {
 					arr = new String[1];
 					arr[0] = currNode.getVertex();
-				} else {
+				}
+				else {
 					String vertex = currNode.getVertex();
 
 					// Skip the vertex if it has already been visited

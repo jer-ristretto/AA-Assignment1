@@ -53,7 +53,8 @@ public class SIRModel {
 	}
 
 
-	private DynamicArray<String> updateRecovered(ContactsGraph graph, DynamicArray<String> infected, float recoverProb) {
+	private DynamicArray<String> updateRecovered
+			(ContactsGraph graph, DynamicArray<String> infected, float recoverProb) {
 		DynamicArray<String> newRecovered = new DynamicArray<String>();
 		for (int i = 0; i < infected.getSize(); i++) {
 			float random = (float) Math.random();

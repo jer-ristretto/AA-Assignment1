@@ -286,12 +286,15 @@ public class IncidenceMatrix extends AbstractGraph
         for (Map.Entry<String, SIRState> entry : getSirStates().entrySet()) {
             os.print("(" + entry.getKey() + ", " + entry.getValue() + ") ");
         }
+        os.println();
+        os.flush();
     } // end of printVertices()
 
 
     public void printEdges(PrintWriter os) {
         for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
-            os.println(entry.getKey());
+            os.println(entry.getKey().charAt(0) + " " + entry.getKey().charAt(1));
+            os.println(entry.getKey().charAt(1) + " " + entry.getKey().charAt(0));
         }
     } // end of printEdges()
 
