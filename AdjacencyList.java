@@ -86,21 +86,24 @@ public class AdjacencyList extends AbstractGraph {
 	} // end of toggleVertexState()
 
 	public void deleteEdge(String srcLabel, String tarLabel) {
-		// Check if the edge is present
+		// Check if both vertices are present
 		Integer srcIndex = getIndices().get(srcLabel);
-		if (srcIndex == null) {
-			System.err.println("The edge is not present");
+		Integer tarIndex = getIndices().get(tarLabel);
+		if (srcIndex == null || tarIndex == null) {
+			System.err.println("At least one vertex is not present");
 			return;
 		}
+
 		EdgeList srcList = edgeLists[srcIndex];
+		EdgeList tarList = edgeLists[tarIndex];
+
+		// Check if the edge is present
 		if (!srcList.contain(tarLabel)) {
 			System.err.println("The edge is not present");
 			return;
 		}
 
 		// Remove the edges from the adjacency lists of both source and target vertex
-		Integer tarIndex = getIndices().get(tarLabel);
-		EdgeList tarList = edgeLists[tarIndex];
 		srcList.remove(tarLabel);
 		tarList.remove(srcLabel);
 	} // end of deleteEdge()
