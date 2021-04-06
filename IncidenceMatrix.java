@@ -198,77 +198,63 @@ public class IncidenceMatrix extends AbstractGraph
         if (k == 0)
             return null;
 
-        String[] neighbours = null;
+        DynamicArray<String> neighbours = new DynamicArray<String>();
 
         // BFS
         // Define "depth" as the number of hops away from the initial vertex
         int depth = 0;
         // Store the vertices visited in the last depth
-        String[] lastVisited = {vertLabel};
+        DynamicArray<String> lastVisited = new DynamicArray<String>();
+        lastVisited.add(vertLabel);
         while (depth < k) {
             // Terminate BFS when no more vertex is visited in the last depth
-            if (lastVisited == null)
-                return neighbours;
+            if (lastVisited.getSize() == 0) {
+                String[] neighbours2 = new String[neighbours.getSize()];
+                return neighbours.toArray(neighbours2);
+            }
 
-            String[] currVisited = null;
+            DynamicArray<String> currVisited = new DynamicArray<String>();
 
             // Locate the vertices visited in the last depth
-            for (int m = 0; m < lastVisited.length; m++) {
-                String srcVertex = lastVisited[m];
+            for (int m = 0; m < lastVisited.getSize(); m++) {
+                String srcVertex = lastVisited.get(m);
                 int rowIndex = getIndices().get(srcVertex);
                 // Find the edges associated with the vertices
                 for (int j = 0; j < matrix[0].length; j++) {
                     if (matrix[rowIndex][j] == true) {
                         // Use the edge to find the index of the target vertex
                         for (int i = 0; i < matrix.length; i++) {
+                            // Skip the row of the source vertex itself
+                            if (i == rowIndex)
+                                continue;
                             if (matrix[i][j] == true) {
+                                // Skip the visited vertices
+                                boolean isVisited = false;
+                                if (neighbours.getSize() != 0) {
+                                    for (int n = 0; n < neighbours.getSize(); n++) {
+                                        String visitedVert = neighbours.get(n);
+                                        int visitedIndex = getIndices().get(visitedVert);
+                                        if (i == visitedIndex || i == getIndices().get(vertLabel)) {
+                                            isVisited = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (isVisited)
+                                    break;
                                 // Retrieve the label of the target vertex with its index
                                 String tarVertex = null;
-                                boolean isSrc = false;
                                 for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
-                                    // Check if the vertex is the source vertex itself
-                                    if (entry.getValue() == i && entry.getKey().equals(srcVertex)) {
-                                        isSrc = true;
-                                        break;
-                                    }
                                     if (entry.getValue() == i && !entry.getKey().equals(srcVertex)) {
                                         tarVertex = entry.getKey();
                                         break;
                                     }
                                 }
-                                // Move to the next row if the vertex is the source vertex itself
-                                if (isSrc)
-                                    continue;
-                                // Check if this vertex has already been visited
-                                boolean isVisited = false;
-                                for (String visitedVertex : neighbours) {
-                                    if (tarVertex.equals(visitedVertex)) {
-                                        isVisited = true;
-                                        break;
-                                    }
-                                }
-                                if (!isVisited) {
-                                    // Add the target vertex into the array of neighbours
-                                    if (neighbours == null)
-                                        neighbours = new String[]{tarVertex};
-                                    else {
-                                        String[] temp = new String[neighbours.length + 1];
-                                        for (int n = 0; n < neighbours.length; n++)
-                                            temp[n] = neighbours[n];
-                                        temp[temp.length - 1] = tarVertex;
-                                        neighbours = temp;
-                                    }
-                                    // Record the target vertex visited in the current depth
-                                    if (currVisited == null)
-                                        currVisited = new String[]{tarVertex};
-                                    else {
-                                        String[] temp = new String[neighbours.length + 1];
-                                        for (int n = 0; n < temp.length; n++)
-                                            temp[n] = currVisited[n];
-                                        temp[temp.length - 1] = tarVertex;
-                                        currVisited = temp;
-                                    }
-                                }
+                                // Add the target vertex to the array of neighbours
+                                neighbours.add(tarVertex);
+                                // Record the target vertex visited in the current depth
+                                currVisited.add(tarVertex);
+                                break;
                             }
                         }
                     }
@@ -278,7 +264,8 @@ public class IncidenceMatrix extends AbstractGraph
             lastVisited = currVisited;
         }
 
-        return neighbours;
+        String[] neighbours2 = new String[neighbours.getSize()];
+        return neighbours.toArray(neighbours2);
     } // end of kHopNeighbours()
 
 
