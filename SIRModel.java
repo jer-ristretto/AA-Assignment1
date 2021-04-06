@@ -39,12 +39,11 @@ public class SIRModel {
 			DynamicArray<String> newRecovered = new DynamicArray<String>();
 
 			newInfected = updatedInfected(graph, infectionProb, seedVertices);
-			// infected = infected+ newInfected; copy the elements of newInfected to
-			// infected array
+			newRecovered = updateRecovered(graph, infected, recoverProb);
 			for (int i = 0; i < newInfected.getSize(); i++) {
 				infected.add(newInfected.get(i));
 			}
-			newRecovered = updateRecovered(graph, infected, recoverProb);
+			
 			for (int i = 0; i < newRecovered.getSize(); i++) {
 				recovered.add(newRecovered.get(i));
 			}
@@ -52,15 +51,7 @@ public class SIRModel {
 				monitor++;
 			} else
 				monitor = 0;
-
-			if (monitor == 10)
-				cont = false;
-			else {
-				t++;
-				seedVertices = new String[infected.getSize()];
-				for (int i = 0; i < infected.getSize(); i++)
-					seedVertices[i] = infected.get(i);
-			}
+			
 			sirModelOutWriter.print(t + ": [");
 			for (int i = 0; i < newInfected.getSize(); i++) {
 				sirModelOutWriter.print(newInfected.get(i) + " ");
@@ -70,6 +61,14 @@ public class SIRModel {
 				sirModelOutWriter.print(newRecovered.get(i) + " ");
 			}
 			sirModelOutWriter.print("]");
+			if (monitor == 10)
+				cont = false;
+			else {
+				t++;
+				seedVertices = new String[infected.getSize()];
+				for (int i = 0; i < infected.getSize(); i++)
+					seedVertices[i] = infected.get(i);
+			}
 		}
 
 	} // end of runSimulation()
@@ -82,11 +81,11 @@ public class SIRModel {
 		for (int i = 0; i < seedVertices.length; i++) {
 			temp = graph.kHopNeighbours(1, seedVertices[i]);
 			for (int j = 0; j < temp.length; j++) {
-				if (abstractGraph.getSirStates().get(temp[i]) == SIRState.S) {
+				if (abstractGraph.getSirStates().get(temp[j]) == SIRState.S) {
 					float random = (float) Math.random();
 					if (random <= infectionProb) {
-						graph.toggleVertexState(temp[i]);
-						newInfected.add(temp[i]);
+						graph.toggleVertexState(temp[j]);
+						newInfected.add(temp[j]);
 					}
 				}
 			}

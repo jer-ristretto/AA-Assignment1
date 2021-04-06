@@ -123,6 +123,7 @@ public class AdjacencyList extends AbstractGraph {
 				else
 					temp[i] = edgeLists[i];
 			}
+			edgeLists = temp;
 			// deleting from HashMaps
 			getIndices().remove(vertLabel);
 			getSirStates().remove(vertLabel);

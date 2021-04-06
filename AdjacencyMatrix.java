@@ -197,8 +197,6 @@ public class AdjacencyMatrix extends AbstractGraph {
 	} // end of kHopNeighbours()
 
 	public void printVertices(PrintWriter os) {
-		// is the output format fine??
-		System.out.println(getIndices().keySet());
 		for (Map.Entry<String, SIRState> entry : getSirStates().entrySet())
 			System.out.print("(" + entry.getKey() + "," + entry.getValue() + ")	");
 			System.out.println();
