@@ -59,11 +59,15 @@ public class AdjacencyList extends AbstractGraph {
 		}
 
 		// Add the edges to the adjacency lists of both source and target vertex
-		if (srcList == null)
+		if (srcList == null) {
 			srcList = new EdgeList();
+			edgeLists[getIndices().get(srcLabel)] = srcList;
+		}
 		EdgeList tarList = edgeLists[getIndices().get(tarLabel)];
-		if (tarList == null)
+		if (tarList == null) {
 			tarList = new EdgeList();
+			edgeLists[getIndices().get(tarLabel)] = tarList;
+		}
 		srcList.add(tarLabel);
 		tarList.add(srcLabel);
 	} // end of addEdge()
