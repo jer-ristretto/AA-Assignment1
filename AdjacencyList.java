@@ -140,33 +140,37 @@ public class AdjacencyList extends AbstractGraph {
 			return null;
 		}
 
-		String[] neighbours = null;
+		DynamicArray<String> neighbours = new DynamicArray<String>();
 
 		// BFS
 		// Define "depth" as the number of hops away from the initial vertex
 		int depth = 0;
 		// Store the vertices visited in the last depth
-		String[] lastVisited = { vertLabel };
+		DynamicArray<String> lastVisited = new DynamicArray<String>();
+		lastVisited.add(vertLabel);
 		while (depth < k) {
 			// Terminate BFS when no more vertex is visited in the last depth
-			if (lastVisited == null)
-				return neighbours;
+			if (lastVisited.getSize() == 0) {
+				String[] neighbours2 = new String[neighbours.getSize()];
+				return neighbours.toArray(neighbours2);
+			}
 
-			String[] currVisited = null;
+			DynamicArray<String> currVisited = new DynamicArray<String>();
 
 			// Locate the vertices visited in the last depth
-			for (int m = 0; m < lastVisited.length; m++) {
-				String srcVertex = lastVisited[m];
+			for (int m = 0; m < lastVisited.getSize(); m++) {
+				String srcVertex = lastVisited.get(m);
 				EdgeList list = edgeLists[getIndices().get(srcVertex)];
 				// Add the target vertices into neighbours and vertices visited in the current depth
-				neighbours = list.addToArray(neighbours);
-				currVisited = list.addToArray(currVisited);
+				neighbours = list.toVisit(neighbours, vertLabel);
+				currVisited = list.toVisit(currVisited, vertLabel);
 			}
 			depth++;
 			lastVisited = currVisited;
 		}
 
-		return neighbours;
+		String[] neighbours2 = new String[neighbours.getSize()];
+		return neighbours.toArray(neighbours2);
 	} // end of kHopNeighbours()
 
 	public void printVertices(PrintWriter os) {
@@ -265,37 +269,36 @@ public class AdjacencyList extends AbstractGraph {
 			}
 		}
 
-		public String[] addToArray(String[] arr) {
+		public DynamicArray toVisit(DynamicArray visited, String initVert) {
 			Node currNode = head;
 			for (int i = 0; i < length; i++) {
-				if (arr == null) {
-					arr = new String[1];
-					arr[0] = currNode.getVertex();
+				String vertex = currNode.getVertex();
+				// Skip if it is the initial vertex
+				if (vertex.equals(initVert)) {
+					currNode = currNode.getNext();
+					continue;
 				}
-				else {
-					String vertex = currNode.getVertex();
 
-					// Skip the vertex if it has already been visited
-					boolean isVisited = false;
-					for (String vertLabel : arr) {
-						if (vertLabel.equals(vertex)) {
+				// Skip the vertex if it has already been visited
+				boolean isVisited = false;
+				if (visited.getSize() != 0) {
+					for (int j = 0; j < visited.getSize(); j++) {
+						if (visited.get(j).equals(vertex)) {
 							isVisited = true;
 							break;
 						}
 					}
-					if (isVisited)
-						break;
-
-					String[] temp = new String[arr.length + 1];
-					for (int j = 0; j < arr.length; j++)
-						temp[j] = arr[j];
-					temp[temp.length - 1] = vertex;
-					arr = temp;
 				}
+				if (isVisited) {
+					currNode = currNode.getNext();
+					continue;
+				}
+
+				visited.add(vertex);
 				currNode = currNode.getNext();
 			}
 
-			return arr;
+			return visited;
 		}
 
 		private class Node {
