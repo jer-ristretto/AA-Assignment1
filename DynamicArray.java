@@ -96,6 +96,10 @@ public class DynamicArray<E> {
     }
 
 
+    /**
+     * Create an array with the same capacity of the DynamicArray
+     * and pass it to this function.
+     */
     public <E> E[] toArray(E[] arr) {
         for (int i = 0; i < size; i++)
             arr[i] = (E) array[i];
