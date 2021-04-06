@@ -1,14 +1,12 @@
-import java.io.PrintWriter;
-
 public class DynamicArray<E> {
 
-    private Object[] array;
+    private transient E[] array;
     private int size;
     private static final int initialSize = 2;
 
 
     public DynamicArray() {
-        array = new Object[initialSize];
+        array = (E[]) new Object[initialSize];
         size = 0;
     }
 
@@ -17,7 +15,7 @@ public class DynamicArray<E> {
         if (index >= size || index < 0)
             throw new IndexOutOfBoundsException("Invalid index");
 
-        return (E) array[index];
+        return array[index];
     }
 
 
@@ -39,7 +37,7 @@ public class DynamicArray<E> {
             array[size] = e;
         }
         else {
-            Object[] newArray = new Object[array.length * 2];
+            E[] newArray = (E[]) new Object[array.length * 2];
 
             for (int i = 0; i < array.length; i++) {
                 newArray[i] = array[i];
@@ -66,7 +64,7 @@ public class DynamicArray<E> {
             array[index] = e;
         }
         else {
-            Object[] newArray = new Object[array.length * 2];
+            E[] newArray = (E[]) new Object[array.length * 2];
 
             for (int i = 0; i < index; i++) {
                 newArray[i] = array[i];
@@ -95,5 +93,12 @@ public class DynamicArray<E> {
         array[size - 1] = null;
 
         size--;
+    }
+
+
+    public <E> E[] toArray(E[] arr) {
+        for (int i = 0; i < size; i++)
+            arr[i] = (E) array[i];
+        return arr;
     }
 }
