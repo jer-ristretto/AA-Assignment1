@@ -198,9 +198,9 @@ public class AdjacencyMatrix extends AbstractGraph {
 
 	public void printVertices(PrintWriter os) {
 		for (Map.Entry<String, SIRState> entry : getSirStates().entrySet())
-			os.print("(" + entry.getKey() + "," + entry.getValue() + ")	");
-			os.println();
+			os.print("(" + entry.getKey() + ", " + entry.getValue() + ") ");
 
+		os.println();
 	} // end of printVertices()
 
 	public void printEdges(PrintWriter os) {
