@@ -30,6 +30,8 @@ public class SIRModel {
 
 		AbstractGraph abstractGraph = (AbstractGraph) graph;
 
+		DynamicArray<String> infected = new DynamicArray<String>();
+
 		for (String seed : seedVertices) {
 			// Check if seed vertices are present
 			if (abstractGraph.getIndices().get(seed) == null) {
@@ -37,14 +39,15 @@ public class SIRModel {
 				return;
 			}
 			// Change state for seed vertices
-			if (abstractGraph.getSirStates().get(seed) == SIRState.S)
+			if (abstractGraph.getSirStates().get(seed) == SIRState.S) {
 				graph.toggleVertexState(seed);
+				infected.add(seed);
+			}
 		}
 
 		int t = 1;
 		int monitor = 0;
 		boolean cont = true;
-		DynamicArray<String> infected = new DynamicArray<String>();
 
 		while (cont) {
 			// Simulate infection and recovering in the network
