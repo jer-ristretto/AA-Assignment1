@@ -17,7 +17,6 @@ public class AdjacencyMatrix extends AbstractGraph {
 	protected int a_matrix[][];
 
 	public AdjacencyMatrix() {
-		// Implement me!
 		a_matrix = null;
 	} // end of AdjacencyMatrix()
 
@@ -142,7 +141,6 @@ public class AdjacencyMatrix extends AbstractGraph {
 	} // end of deleteVertex()
 
 	public String[] kHopNeighbours(int k, String vertLabel) {
-		// Implement me!
 		int pos = getIndices().get(vertLabel);
 		int counter = 0;
 		// queue for storing the neighbors

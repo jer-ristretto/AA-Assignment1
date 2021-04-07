@@ -21,7 +21,6 @@ public class AdjacencyList extends AbstractGraph {
 	} // end of AdjacencyList()
 
 	public void addVertex(String vertLabel) {
-		// Implement me!
 		if (getIndices().containsKey(vertLabel))
 			System.err.println("This vertex already exists.");
 		else {

@@ -25,33 +25,33 @@ public class SIRModel {
 	 * @param sirModelOutWriter PrintWriter to output the necessary information per
 	 *                          iteration (see specs for details).
 	 */
-	public void runSimulation(ContactsGraph graph, String[] seedVertices, float infectionProb, float recoverProb,
-			PrintWriter sirModelOutWriter) {
-		// IMPLEMENT ME!
+	public void runSimulation(ContactsGraph graph, String[] seedVertices,
+							  float infectionProb, float recoverProb, PrintWriter sirModelOutWriter) {
+
 		int t = 1;
 		int monitor = 0;
 		boolean cont = true;
 		DynamicArray<String> infected = new DynamicArray<String>();
-		DynamicArray<String> recovered = new DynamicArray<String>();
 
 		while (cont) {
-			DynamicArray<String> newInfected = new DynamicArray<String>();
-			DynamicArray<String> newRecovered = new DynamicArray<String>();
+			// Simulate infection and recovering in the network
+			DynamicArray<String> newInfected = updatedInfected(graph, infectionProb, seedVertices);
+			DynamicArray<String> newRecovered = updateRecovered(graph, infected, recoverProb);
 
-			newInfected = updatedInfected(graph, infectionProb, seedVertices);
-			newRecovered = updateRecovered(graph, infected, recoverProb);
+			// Add new infected vertices from last iteration to total infected vertices
 			for (int i = 0; i < newInfected.getSize(); i++) {
 				infected.add(newInfected.get(i));
 			}
-			
-			for (int i = 0; i < newRecovered.getSize(); i++) {
-				recovered.add(newRecovered.get(i));
-			}
+
+			// Increment the monitor if no state change
 			if (newRecovered.getSize() == 0 && newInfected.getSize() == 0) {
 				monitor++;
-			} else
+			}
+			// Reset monitor if any state change
+			else
 				monitor = 0;
-			
+
+			// Print the simulation result
 			sirModelOutWriter.print(t + ": [");
 			for (int i = 0; i < newInfected.getSize(); i++) {
 				sirModelOutWriter.print(newInfected.get(i) + " ");
@@ -61,6 +61,8 @@ public class SIRModel {
 				sirModelOutWriter.print(newRecovered.get(i) + " ");
 			}
 			sirModelOutWriter.print("]");
+			sirModelOutWriter.println();
+
 			if (monitor == 10)
 				cont = false;
 			else {
@@ -73,13 +75,16 @@ public class SIRModel {
 
 	} // end of runSimulation()
 
+
+	// Simulate infection in the network
 	private DynamicArray<String> updatedInfected(ContactsGraph graph, float infectionProb, String[] seedVertices) {
-		// TODO Auto-generated method stub
+
 		AbstractGraph abstractGraph = (AbstractGraph) graph;
+
 		DynamicArray<String> newInfected = new DynamicArray<String>();
-		String[] temp = null;
+
 		for (int i = 0; i < seedVertices.length; i++) {
-			temp = graph.kHopNeighbours(1, seedVertices[i]);
+			String[] temp = graph.kHopNeighbours(1, seedVertices[i]);
 			for (int j = 0; j < temp.length; j++) {
 				if (abstractGraph.getSirStates().get(temp[j]) == SIRState.S) {
 					float random = (float) Math.random();
@@ -93,8 +98,11 @@ public class SIRModel {
 		return newInfected;
 	}
 
-	private DynamicArray<String> updateRecovered(ContactsGraph graph, DynamicArray<String> infected,
-			float recoverProb) {
+
+	// Simulate recovering in the network
+	private DynamicArray<String> updateRecovered(ContactsGraph graph,
+												 DynamicArray<String> infected, float recoverProb) {
+
 		DynamicArray<String> newRecovered = new DynamicArray<String>();
 		for (int i = 0; i < infected.getSize(); i++) {
 			float random = (float) Math.random();
