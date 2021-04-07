@@ -178,10 +178,10 @@ public class AdjacencyList extends AbstractGraph {
 	} // end of kHopNeighbours()
 
 	public void printVertices(PrintWriter os) {
-		System.out.println(getIndices().keySet());
 		for (Map.Entry<String, SIRState> entry : getSirStates().entrySet())
-			System.out.print("(" + entry.getKey() + ", " + entry.getValue() + ")");
+			os.print("(" + entry.getKey() + ", " + entry.getValue() + ") ");
 
+		os.println();
 	} // end of printVertices()
 
 	public void printEdges(PrintWriter os) {
@@ -268,7 +268,7 @@ public class AdjacencyList extends AbstractGraph {
 		public void printEdges(String srcLabel, PrintWriter os) {
 			Node currNode = head;
 			for (int i = 0; i < length; i++) {
-				os.println(srcLabel + currNode.getVertex());
+				os.println(srcLabel + " " + currNode.getVertex());
 				currNode = currNode.getNext();
 			}
 		}
