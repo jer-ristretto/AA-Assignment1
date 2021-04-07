@@ -104,6 +104,13 @@ public class IncidenceMatrix extends AbstractGraph
 
 
     public void deleteEdge(String srcLabel, String tarLabel) {
+        // Check if both vertices are present
+        if (getIndices().get(srcLabel) == null
+                || getIndices().get(tarLabel) == null) {
+            System.err.println("At least one vertex is not present");
+            return;
+        }
+
         // Check if the edge is present
         // Remove the edge from the map if yes
         int edgeIndex = -1;
@@ -125,12 +132,12 @@ public class IncidenceMatrix extends AbstractGraph
             matrix = null;
         else {
             boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length - 1];
-            for (int i = 0; i < matrix.length; i++) {
-                for (int j = 0; j < matrix[0].length; j++) {
+            for (int i = 0; i < tempMatrix.length; i++) {
+                for (int j = 0; j < tempMatrix[0].length; j++) {
                     // Copy the columns as is until reach the column to be deleted
                     if (j < edgeIndex)
                         tempMatrix[i][j] = matrix[i][j];
-                    //Move the following columns to the left
+                        // Skip the column to be deleted and move the following columns to the left
                     else
                         tempMatrix[i][j] = matrix[i][j + 1];
                 }
@@ -155,28 +162,31 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Remove all edges of the vertex
-        for (String edgeLabel : edgeIndices.keySet())
-            if (edgeLabel.contains(vertLabel))
-                deleteEdge(edgeLabel.substring(0, 1), edgeLabel.substring(1));
+        DynamicArray<String> edgesToRemove = new DynamicArray<String>();
+        for (String edgeLabel : edgeIndices.keySet()) {
+            if (edgeLabel.contains(vertLabel)) {
+                edgesToRemove.add(edgeLabel);
+            }
+        }
+        for (int i = 0; i < edgesToRemove.getSize(); i++) {
+            String srcVert = edgesToRemove.get(i).substring(0, 1);
+            String tarVert = edgesToRemove.get(i).substring(1);
+            deleteEdge(srcVert, tarVert);
+        }
 
         // Remove the row of the vertex from the matrix
         if (matrix.length == 1)
             matrix = null;
         else {
             boolean[][] tempMatrix = new boolean[matrix.length - 1][matrix[0].length];
-            for (int i = 0; i < matrix.length; i++) {
-                // Copy the rows as is until reach the row to be deleted
-                if (i < getIndices().get(vertLabel)) {
-                    for (int j = 0; j < matrix[0].length; j++) {
+            for (int j = 0; j < tempMatrix[0].length; j++) {
+                for (int i = 0; i < tempMatrix.length; i++) {
+                    // Copy the rows as is until reach the row to be deleted
+                    if (i < getIndices().get(vertLabel))
                         tempMatrix[i][j] = matrix[i][j];
-                    }
-                }
-                // Skip the row to be deleted
-                // Move up the following rows
-                else {
-                    for (int j = 0; j < matrix[0].length; j++) {
+                        // Skip the row to be deleted and move the following rows upwards
+                    else
                         tempMatrix[i][j] = matrix[i + 1][j];
-                    }
                 }
             }
             matrix = tempMatrix;
