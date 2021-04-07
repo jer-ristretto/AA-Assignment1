@@ -28,6 +28,19 @@ public class SIRModel {
 	public void runSimulation(ContactsGraph graph, String[] seedVertices,
 							  float infectionProb, float recoverProb, PrintWriter sirModelOutWriter) {
 
+		AbstractGraph abstractGraph = (AbstractGraph) graph;
+
+		for (String seed : seedVertices) {
+			// Check if seed vertices are present
+			if (abstractGraph.getIndices().get(seed) == null) {
+				System.err.println("At least one seed vertex is not present.");
+				return;
+			}
+			// Change state for seed vertices
+			if (abstractGraph.getSirStates().get(seed) == SIRState.S)
+				graph.toggleVertexState(seed);
+		}
+
 		int t = 1;
 		int monitor = 0;
 		boolean cont = true;
@@ -84,13 +97,16 @@ public class SIRModel {
 		DynamicArray<String> newInfected = new DynamicArray<String>();
 
 		for (int i = 0; i < seedVertices.length; i++) {
-			String[] temp = graph.kHopNeighbours(1, seedVertices[i]);
-			for (int j = 0; j < temp.length; j++) {
-				if (abstractGraph.getSirStates().get(temp[j]) == SIRState.S) {
+			// Find the vertices with close contact
+			String[] neighbours = graph.kHopNeighbours(1, seedVertices[i]);
+
+			for (int j = 0; j < neighbours.length; j++) {
+				// Infect vertex only if it's in the susceptible state
+				if (abstractGraph.getSirStates().get(neighbours[j]) == SIRState.S) {
 					float random = (float) Math.random();
 					if (random <= infectionProb) {
-						graph.toggleVertexState(temp[j]);
-						newInfected.add(temp[j]);
+						graph.toggleVertexState(neighbours[j]);
+						newInfected.add(neighbours[j]);
 					}
 				}
 			}
