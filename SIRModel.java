@@ -1,4 +1,5 @@
 import java.io.PrintWriter;
+import java.util.Map;
 
 /**
  * SIR model.
@@ -32,14 +33,21 @@ public class SIRModel {
 
 		DynamicArray<String> infected = new DynamicArray<String>();
 
+		// Add existing infected vertices into the infected array
+		for (Map.Entry<String, SIRState> entry : abstractGraph.getSirStates().entrySet()) {
+			if (entry.getValue() == SIRState.I)
+				infected.add(entry.getKey());
+		}
+
 		for (String seed : seedVertices) {
 			// Check if seed vertices are present
 			if (abstractGraph.getIndices().get(seed) == null) {
 				System.err.println("At least one seed vertex is not present.");
 				return;
 			}
-			// Change state for seed vertices
+			// Check if the seed vertices are susceptible
 			if (abstractGraph.getSirStates().get(seed) == SIRState.S) {
+				// Change state for seed vertices and add into the infected array
 				graph.toggleVertexState(seed);
 				infected.add(seed);
 			}
