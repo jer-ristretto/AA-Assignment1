@@ -24,21 +24,17 @@ public class AdjacencyList extends AbstractGraph {
 		if (getIndices().containsKey(vertLabel))
 			System.err.println("This vertex already exists.");
 		else {
-			SIRState s1 = SIRState.S;
 			getIndices().put(vertLabel, getIndices().size());
-			getSirStates().put(vertLabel, s1);
+			getSirStates().put(vertLabel, SIRState.S);
 			if (edgeLists == null) {
 				edgeLists = new EdgeList[1];
-				edgeLists[0] = null;
-			} else {
+			}
+			else {
 				EdgeList[] temp = new EdgeList[edgeLists.length + 1];
 				for (int i = 0; i < edgeLists.length; i++) {
 					temp[i] = edgeLists[i];
 				}
-				// do i need to do this here or should it be done in addEdge
-				temp[edgeLists.length] = null;
 				edgeLists = temp;
-
 			}
 		}
 	} // end of addVertex()
@@ -186,7 +182,8 @@ public class AdjacencyList extends AbstractGraph {
 	public void printEdges(PrintWriter os) {
 		for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
 			EdgeList list = edgeLists[entry.getValue()];
-			list.printEdges(entry.getKey(), os);
+			if (list != null)
+				list.printEdges(entry.getKey(), os);
 		}
 	} // end of printEdges()
 
