@@ -49,9 +49,10 @@ public class IncidenceMatrix extends AbstractGraph
 
     public void addEdge(String srcLabel, String tarLabel) {
         // Check duplicate edge
-        if (edgeIndices.containsKey(srcLabel + tarLabel)
-                || edgeIndices.containsKey(tarLabel + srcLabel)) {
+        if (edgeIndices.containsKey(srcLabel + " " + tarLabel)
+                || edgeIndices.containsKey(tarLabel + " " + srcLabel)) {
             System.err.println("Found duplicate edge");
+
             return;
         }
 
@@ -63,7 +64,7 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Map the edge to its index
-        edgeIndices.put(srcLabel + tarLabel, edgeIndices.size());
+        edgeIndices.put(srcLabel + " " + tarLabel, edgeIndices.size());
 
         // Instantiate the matrix if this is the first edge added into the graph
         if (matrix == null) {
@@ -114,13 +115,13 @@ public class IncidenceMatrix extends AbstractGraph
         // Check if the edge is present
         // Remove the edge from the map if yes
         int edgeIndex = -1;
-        if (edgeIndices.containsKey(srcLabel + tarLabel)) {
-            edgeIndex = edgeIndices.get(srcLabel + tarLabel);
-            edgeIndices.remove(srcLabel + tarLabel);
+        if (edgeIndices.containsKey(srcLabel + " " + tarLabel)) {
+            edgeIndex = edgeIndices.get(srcLabel + " " + tarLabel);
+            edgeIndices.remove(srcLabel + " " + tarLabel);
         }
-        else if (edgeIndices.containsKey(tarLabel + srcLabel)) {
-            edgeIndex = edgeIndices.get(tarLabel + srcLabel);
-            edgeIndices.remove(tarLabel + srcLabel);
+        else if (edgeIndices.containsKey(tarLabel + " " + srcLabel)) {
+            edgeIndex = edgeIndices.get(tarLabel + " " + srcLabel);
+            edgeIndices.remove(tarLabel + " " + srcLabel);
         }
         else {
             System.err.println("The edge is not present in the graph");
@@ -162,16 +163,11 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Remove all edges of the vertex
-        DynamicArray<String> edgesToRemove = new DynamicArray<String>();
         for (String edgeLabel : edgeIndices.keySet()) {
-            if (edgeLabel.contains(vertLabel)) {
-                edgesToRemove.add(edgeLabel);
+            String[] srcAndTar = edgeLabel.split(" ", 2);
+            if (srcAndTar[0].equals(vertLabel) || srcAndTar[1].equals(vertLabel)) {
+                deleteEdge(srcAndTar[0], srcAndTar[1]);
             }
-        }
-        for (int i = 0; i < edgesToRemove.getSize(); i++) {
-            String srcVert = edgesToRemove.get(i).substring(0, 1);
-            String tarVert = edgesToRemove.get(i).substring(1);
-            deleteEdge(srcVert, tarVert);
         }
 
         // Remove the row of the vertex from the matrix
@@ -225,45 +221,39 @@ public class IncidenceMatrix extends AbstractGraph
 
             DynamicArray<String> currVisited = new DynamicArray<String>();
 
-            // Locate the vertices visited in the last depth
+            // Locate the vertex visited in the last depth (source vertex)
             for (int m = 0; m < lastVisited.getSize(); m++) {
                 String srcVertex = lastVisited.get(m);
                 int rowIndex = getIndices().get(srcVertex);
-                // Find the edges associated with the vertices
+                // Find the edge associated with the source vertex
                 for (int j = 0; j < matrix[0].length; j++) {
-                    if (matrix[rowIndex][j] == true) {
-                        // Use the edge to find the index of the target vertex
-                        for (int i = 0; i < matrix.length; i++) {
-                            // Skip the row of the source vertex itself
-                            if (i == rowIndex)
-                                continue;
-                            if (matrix[i][j] == true) {
-                                // Skip the visited vertices
+                    if (matrix[rowIndex][j]) {
+                        // Retrieve the edge from the map
+                        for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
+                            if (entry.getValue() == j) {
+                                // Find the target vertex
+                                String[] srcAndTar = entry.getKey().split(" ", 2);
+                                String tarVert = null;
+                                if (srcAndTar[0].equals(srcVertex))
+                                    tarVert = srcAndTar[1];
+                                else
+                                    tarVert = srcAndTar[0];
+                                // Check if the target vertex has already been visited
                                 boolean isVisited = false;
                                 if (neighbours.getSize() != 0) {
                                     for (int n = 0; n < neighbours.getSize(); n++) {
-                                        String visitedVert = neighbours.get(n);
-                                        int visitedIndex = getIndices().get(visitedVert);
-                                        if (i == visitedIndex || i == getIndices().get(vertLabel)) {
+                                        if (neighbours.get(n).equals(tarVert) || vertLabel.equals(tarVert)) {
                                             isVisited = true;
                                             break;
                                         }
                                     }
                                 }
-                                if (isVisited)
-                                    break;
-                                // Retrieve the label of the target vertex with its index
-                                String tarVertex = null;
-                                for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
-                                    if (entry.getValue() == i && !entry.getKey().equals(srcVertex)) {
-                                        tarVertex = entry.getKey();
-                                        break;
-                                    }
+                                if (!isVisited) {
+                                    // Add the target vertex to the array of neighbours
+                                    neighbours.add(tarVert);
+                                    // Record the target vertex visited in the current depth
+                                    currVisited.add(tarVert);
                                 }
-                                // Add the target vertex to the array of neighbours
-                                neighbours.add(tarVertex);
-                                // Record the target vertex visited in the current depth
-                                currVisited.add(tarVertex);
                                 break;
                             }
                         }
@@ -289,9 +279,9 @@ public class IncidenceMatrix extends AbstractGraph
 
     public void printEdges(PrintWriter os) {
         for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
-            os.println(entry.getKey().charAt(0) + " " + entry.getKey().charAt(1));
-            os.println(entry.getKey().charAt(1) + " " + entry.getKey().charAt(0));
+            String[] srcAndTar = entry.getKey().split(" ", 2);
+            os.println(srcAndTar[0] + " " + srcAndTar[1]);
+            os.println(srcAndTar[1] + " " + srcAndTar[0]);
         }
     } // end of printEdges()
-
 } // end of class IncidenceMatrix
