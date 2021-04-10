@@ -62,7 +62,7 @@ public class RmitCovidModelling
 	 *
 	 * @param inReader Input reader where the operation commands are coming from.
 	 * @param graph The graph which the operations are executed on.
-	 * @param sir SIR model object that will run the SIR simulation.
+	 * @param sirModel SIR model object that will run the SIR simulation.
 	 * @param outWriter Where to outputs should be written to.
 	 *
 	 * @throws IOException If there is an exception to do with I/O.
