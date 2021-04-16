@@ -141,6 +141,16 @@ public class AdjacencyMatrix extends AbstractGraph {
 	} // end of deleteVertex()
 
 	public String[] kHopNeighbours(int k, String vertLabel) {
+		
+		if (k == 0)
+			return new String[0];
+
+		// Check if the vertex exists
+		if (!getIndices().containsKey(vertLabel)) {
+			System.err.println("The vertex is not present in the graph");
+			return new String[0];
+		}
+		
 		int pos = getIndices().get(vertLabel);
 		int counter = 0;
 		// queue for storing the neighbors
