@@ -156,8 +156,7 @@ public class IncidenceMatrix extends AbstractGraph
 
     public void deleteVertex(String vertLabel) {
         // Check if the vertex is present
-        if (!getIndices().containsKey(vertLabel)
-                || !getSirStates().containsKey(vertLabel)) {
+        if (!getIndices().containsKey(vertLabel)) {
             System.err.println("The vertex is not present in the graph");
             return;
         }
@@ -203,6 +202,12 @@ public class IncidenceMatrix extends AbstractGraph
     public String[] kHopNeighbours(int k, String vertLabel) {
         if (k == 0)
             return null;
+
+        // Check if the vertex exists
+        if (!getIndices().containsKey(vertLabel)) {
+            System.err.println("The vertex is not present in the graph");
+            return null;
+        }
 
         DynamicArray<String> neighbours = new DynamicArray<String>();
 
