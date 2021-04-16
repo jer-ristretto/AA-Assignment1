@@ -141,7 +141,6 @@ public class AdjacencyMatrix extends AbstractGraph {
 	} // end of deleteVertex()
 
 	public String[] kHopNeighbours(int k, String vertLabel) {
-		
 		if (k == 0)
 			return new String[0];
 
@@ -183,9 +182,9 @@ public class AdjacencyMatrix extends AbstractGraph {
 					}
 				}
 				flag++;
-				if(arr_queue[arr_queue.length-1] != -1){
-				flag = size;
-				counter = k;
+				if(arr_queue[arr_queue.length-1] != -1) {
+					flag = size;
+					counter = k;
 				}
 				
 				

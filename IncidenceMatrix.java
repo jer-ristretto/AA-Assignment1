@@ -15,7 +15,7 @@ public class IncidenceMatrix extends AbstractGraph
     private boolean[][] matrix;
     private int rowSize;
     private int colSize;
-    private static final int iniSize = 10;
+    private static final int iniSize = 2;
     private HashMap<String, Integer> edgeIndices;
     private HashMap<Integer, String> edgeLabels;
 
