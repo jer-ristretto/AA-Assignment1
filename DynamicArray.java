@@ -2,7 +2,7 @@ public class DynamicArray<E> {
 
     private transient E[] array;
     private int size;
-    private static final int initialSize = 2;
+    private static final int initialSize = 10;
 
 
     public DynamicArray() {
@@ -51,37 +51,6 @@ public class DynamicArray<E> {
     }
 
 
-    public void insert(int index, E e) throws IndexOutOfBoundsException {
-        if (index >= size || index < 0) {
-            throw new IndexOutOfBoundsException("Invalid index");
-        }
-
-        if (size < array.length) {
-            for (int j = size; j > index; j--) {
-                array[j] = array[j - 1];
-            }
-
-            array[index] = e;
-        }
-        else {
-            E[] newArray = (E[]) new Object[array.length * 2];
-
-            for (int i = 0; i < index; i++) {
-                newArray[i] = array[i];
-            }
-
-            for (int j = array.length; j > index; j--) {
-                newArray[j] = array[j - 1];
-            }
-
-            newArray[index] = e;
-            array = newArray;
-        }
-
-        size++;
-    }
-
-
     public void remove(int index) throws IndexOutOfBoundsException {
         if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException("Invalid index");
@@ -97,7 +66,7 @@ public class DynamicArray<E> {
 
 
     /**
-     * Create an array with the same capacity of the DynamicArray
+     * Create an array with the size equal to the number of elements in the DynamicArray
      * and pass it to this function.
      */
     public <E> E[] toArray(E[] arr) {

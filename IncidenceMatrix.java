@@ -13,14 +13,21 @@ public class IncidenceMatrix extends AbstractGraph
 {
 
     private boolean[][] matrix;
+    private int rowSize;
+    private int colSize;
+    private static final int iniSize = 10;
     private HashMap<String, Integer> edgeIndices;
+    private HashMap<Integer, String> edgeLabels;
 
 	/**
 	 * Construct empty graph.
 	 */
     public IncidenceMatrix() {
-        matrix = null;
+        matrix = new boolean[iniSize][iniSize];
+        rowSize = 0;
+        colSize = 0;
         edgeIndices = new HashMap<String, Integer>();
+        edgeLabels = new HashMap<Integer, String>();
     } // end of IncidenceMatrix()
 
 
@@ -33,16 +40,19 @@ public class IncidenceMatrix extends AbstractGraph
             getIndices().put(vertLabel, getIndices().size());
             getSirStates().put(vertLabel, SIRState.S);
 
-            // Insert the row of the new vertex into the matrix
-            if (matrix != null) {
-                boolean[][] tempMatrix = new boolean[matrix.length + 1][matrix[0].length];
+            // Add the row of the new vertex into the matrix
+            if (rowSize >= matrix.length) {
+                boolean[][] tempMatrix = new boolean[matrix.length * 2][matrix[0].length];
                 for (int i = 0; i < matrix.length; i++) {
                     for (int j = 0; j < matrix[0].length; j++) {
                         tempMatrix[i][j] = matrix[i][j];
                     }
                 }
+
                 matrix = tempMatrix;
             }
+
+            rowSize++;
         }
     } // end of addVertex()
 
@@ -65,27 +75,27 @@ public class IncidenceMatrix extends AbstractGraph
 
         // Map the edge to its index
         edgeIndices.put(srcLabel + " " + tarLabel, edgeIndices.size());
+        edgeLabels.put(edgeLabels.size(), srcLabel + " " + tarLabel);
 
-        // Instantiate the matrix if this is the first edge added into the graph
-        if (matrix == null) {
-            matrix = new boolean[getIndices().size()][1];
-        }
-        else {
-            // Insert the column of the new edge into the matrix
-            boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length + 1];
+        // Add the column of the new edge into the matrix
+        if (colSize >= matrix[0].length) {
+            boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length * 2];
             for (int i = 0; i < matrix.length; i++) {
                 for (int j = 0; j < matrix[0].length; j++) {
                     tempMatrix[i][j] = matrix[i][j];
                 }
             }
+
             matrix = tempMatrix;
         }
 
-        // Reflect presence of the edge
+        // Reflect presence of the edge in the matrix
         int srcIndex = getIndices().get(srcLabel);
-        matrix[srcIndex][matrix[0].length - 1] = true;
+        matrix[srcIndex][colSize] = true;
         int tarIndex = getIndices().get(tarLabel);
-        matrix[tarIndex][matrix[0].length - 1] = true;
+        matrix[tarIndex][colSize] = true;
+
+        colSize++;
     } // end of addEdge()
 
 
@@ -106,51 +116,48 @@ public class IncidenceMatrix extends AbstractGraph
 
     public void deleteEdge(String srcLabel, String tarLabel) {
         // Check if both vertices are present
-        if (getIndices().get(srcLabel) == null
-                || getIndices().get(tarLabel) == null) {
+        if (!getIndices().containsKey(srcLabel)
+                || !getIndices().containsKey(tarLabel)) {
             System.err.println("At least one vertex is not present");
             return;
         }
 
         // Check if the edge is present
-        // Remove the edge from the map if yes
+        if (!edgeIndices.containsKey(srcLabel + " " + tarLabel)
+                && !edgeIndices.containsKey(tarLabel + " " + srcLabel)) {
+            System.err.println("The edge is not present in the graph");
+            return;
+        }
+
+        // Remove the edge from the map
         int edgeIndex = -1;
         if (edgeIndices.containsKey(srcLabel + " " + tarLabel)) {
             edgeIndex = edgeIndices.get(srcLabel + " " + tarLabel);
             edgeIndices.remove(srcLabel + " " + tarLabel);
         }
-        else if (edgeIndices.containsKey(tarLabel + " " + srcLabel)) {
+        else {
             edgeIndex = edgeIndices.get(tarLabel + " " + srcLabel);
             edgeIndices.remove(tarLabel + " " + srcLabel);
         }
-        else {
-            System.err.println("The edge is not present in the graph");
-            return;
-        }
-
-        // Remove the column of the edge from the matrix
-        if (matrix[0].length == 1)
-            matrix = null;
-        else {
-            boolean[][] tempMatrix = new boolean[matrix.length][matrix[0].length - 1];
-            for (int i = 0; i < tempMatrix.length; i++) {
-                for (int j = 0; j < tempMatrix[0].length; j++) {
-                    // Copy the columns as is until reach the column to be deleted
-                    if (j < edgeIndex)
-                        tempMatrix[i][j] = matrix[i][j];
-                        // Skip the column to be deleted and move the following columns to the left
-                    else
-                        tempMatrix[i][j] = matrix[i][j + 1];
-                }
-            }
-            matrix = tempMatrix;
-        }
+        edgeLabels.remove(edgeIndex);
 
         // Move the indices of behind edges forward
-        for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
-            if (entry.getValue() > edgeIndex)
-                entry.setValue(entry.getValue() - 1);
+        for (int i = edgeIndex; i < edgeLabels.size() - 1; i++) {
+            edgeLabels.put(i, edgeLabels.get(i + 1));
+            edgeIndices.replace(edgeLabels.get(i), i);
         }
+        edgeLabels.remove(edgeLabels.size() - 1);
+
+        // Remove the column of the edge from the matrix
+        for (int i = 0; i < rowSize; i++) {
+            for (int j = edgeIndex; j < colSize - 1; j++) {
+                matrix[i][j] = matrix[i][j + 1];
+            }
+
+            matrix[i][colSize - 1] = false;
+        }
+
+        colSize--;
     } // end of deleteEdge()
 
 
@@ -162,7 +169,8 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Remove all edges of the vertex
-        for (String edgeLabel : edgeIndices.keySet()) {
+        for (int i = 0; i < edgeLabels.size(); i++) {
+            String edgeLabel = edgeLabels.get(i);
             String[] srcAndTar = edgeLabel.split(" ", 2);
             if (srcAndTar[0].equals(vertLabel) || srcAndTar[1].equals(vertLabel)) {
                 deleteEdge(srcAndTar[0], srcAndTar[1]);
@@ -170,22 +178,18 @@ public class IncidenceMatrix extends AbstractGraph
         }
 
         // Remove the row of the vertex from the matrix
-        if (matrix.length == 1)
-            matrix = null;
-        else {
-            boolean[][] tempMatrix = new boolean[matrix.length - 1][matrix[0].length];
-            for (int j = 0; j < tempMatrix[0].length; j++) {
-                for (int i = 0; i < tempMatrix.length; i++) {
-                    // Copy the rows as is until reach the row to be deleted
-                    if (i < getIndices().get(vertLabel))
-                        tempMatrix[i][j] = matrix[i][j];
-                        // Skip the row to be deleted and move the following rows upwards
-                    else
-                        tempMatrix[i][j] = matrix[i + 1][j];
-                }
+        int vertIndex = getIndices().get(vertLabel);
+        for (int i = vertIndex; i < rowSize - 1; i++) {
+            for (int j = 0; j < colSize; j++) {
+                matrix[i][j] = matrix[i + 1][j];
             }
-            matrix = tempMatrix;
         }
+
+        for (int j = 0; j < colSize; j++) {
+            matrix[rowSize - 1][j] = false;
+        }
+
+        rowSize--;
 
         // Move the indices of behind vertices forward
         for (Map.Entry<String, Integer> entry : getIndices().entrySet()) {
@@ -230,38 +234,40 @@ public class IncidenceMatrix extends AbstractGraph
             for (int m = 0; m < lastVisited.getSize(); m++) {
                 String srcVertex = lastVisited.get(m);
                 int rowIndex = getIndices().get(srcVertex);
+
                 // Find the edge associated with the source vertex
-                for (int j = 0; j < matrix[0].length; j++) {
-                    if (matrix[rowIndex][j]) {
-                        // Retrieve the edge from the map
-                        for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
-                            if (entry.getValue() == j) {
-                                // Find the target vertex
-                                String[] srcAndTar = entry.getKey().split(" ", 2);
-                                String tarVert = null;
-                                if (srcAndTar[0].equals(srcVertex))
-                                    tarVert = srcAndTar[1];
-                                else
-                                    tarVert = srcAndTar[0];
-                                // Check if the target vertex has already been visited
-                                boolean isVisited = false;
-                                if (neighbours.getSize() != 0) {
-                                    for (int n = 0; n < neighbours.getSize(); n++) {
-                                        if (neighbours.get(n).equals(tarVert) || vertLabel.equals(tarVert)) {
-                                            isVisited = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!isVisited) {
-                                    // Add the target vertex to the array of neighbours
-                                    neighbours.add(tarVert);
-                                    // Record the target vertex visited in the current depth
-                                    currVisited.add(tarVert);
-                                }
+                for (Map.Entry<String, Integer> entry : edgeIndices.entrySet()) {
+                    String[] srcAndTar = entry.getKey().split(" ", 2);
+                    if (!srcAndTar[0].equals(srcVertex) && !srcAndTar[1].equals(srcVertex))
+                        continue;
+
+                    // Find the target vertex
+                    String tarVert = null;
+                    if (srcAndTar[0].equals(srcVertex))
+                        tarVert = srcAndTar[1];
+                    else
+                        tarVert = srcAndTar[0];
+
+                    // Skip the edge if the target vertex is the initial source vertex
+                    if (vertLabel.equals(tarVert))
+                        continue;
+
+                    // Check if the target vertex has already been visited
+                    boolean isVisited = false;
+                    if (neighbours.getSize() != 0) {
+                        for (int n = 0; n < neighbours.getSize(); n++) {
+                            if (neighbours.get(n).equals(tarVert)) {
+                                isVisited = true;
                                 break;
                             }
                         }
+                    }
+
+                    if (!isVisited) {
+                        // Add the target vertex to the array of neighbours
+                        neighbours.add(tarVert);
+                        // Record the target vertex visited in the current depth
+                        currVisited.add(tarVert);
                     }
                 }
             }
