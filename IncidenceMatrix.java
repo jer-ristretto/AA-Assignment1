@@ -201,12 +201,12 @@ public class IncidenceMatrix extends AbstractGraph
 
     public String[] kHopNeighbours(int k, String vertLabel) {
         if (k == 0)
-            return null;
+            return new String[0];
 
         // Check if the vertex exists
         if (!getIndices().containsKey(vertLabel)) {
             System.err.println("The vertex is not present in the graph");
-            return null;
+            return new String[0];
         }
 
         DynamicArray<String> neighbours = new DynamicArray<String>();
