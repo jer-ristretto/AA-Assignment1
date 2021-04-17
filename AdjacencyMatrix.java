@@ -182,7 +182,7 @@ public class AdjacencyMatrix extends AbstractGraph {
 					}
 				}
 				flag++;
-				if(arr_queue[arr_queue.length-1] != -1) {
+				if (arr_queue[flag] == -1) {
 					flag = size;
 					counter = k;
 				}
