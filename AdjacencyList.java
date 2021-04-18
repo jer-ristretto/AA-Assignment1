@@ -107,8 +107,9 @@ public class AdjacencyList extends AbstractGraph {
 		// deleting from all the linkedlist
 		if (getIndices().containsKey(vertLabel)) {
 			for (int i = 0; i < edgeLists.length; i++) {
-				// should be change the return type to null
-				edgeLists[i].remove(vertLabel);
+				// should be change the return type to null	
+				if (edgeLists[i] != null)
+					edgeLists[i].remove(vertLabel);
 			}
 			int pos = getIndices().get(vertLabel);
 			EdgeList[] temp = new EdgeList[edgeLists.length - 1];
