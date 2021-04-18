@@ -174,6 +174,7 @@ public class IncidenceMatrix extends AbstractGraph
             String[] srcAndTar = edgeLabel.split(" ", 2);
             if (srcAndTar[0].equals(vertLabel) || srcAndTar[1].equals(vertLabel)) {
                 deleteEdge(srcAndTar[0], srcAndTar[1]);
+                i--;
             }
         }
 
