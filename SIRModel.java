@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -7,6 +9,10 @@ import java.util.Map;
  * @author Jeffrey Chan, 2021.
  */
 public class SIRModel {
+
+	int numS;
+	int numI;
+	int numR;
 
 	/**
 	 * Default constructor, modify as needed.
@@ -30,8 +36,15 @@ public class SIRModel {
 							  float infectionProb, float recoverProb, PrintWriter sirModelOutWriter) {
 
 		AbstractGraph abstractGraph = (AbstractGraph) graph;
-
 		DynamicArray<String> infected = new DynamicArray<String>();
+
+		String fileName = "SIR_overtime.csv";
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new FileWriter(fileName), true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// Add existing infected vertices into the infected array
 		for (Map.Entry<String, SIRState> entry : abstractGraph.getSirStates().entrySet()) {
@@ -52,6 +65,9 @@ public class SIRModel {
 				infected.add(seed);
 			}
 		}
+
+		numS = abstractGraph.getIndices().size() - infected.getSize();
+		numI = infected.getSize();
 
 		int t = 1;
 		int monitor = 0;
@@ -87,6 +103,9 @@ public class SIRModel {
 			sirModelOutWriter.print("]");
 			sirModelOutWriter.println();
 
+			// Output the number of S/I/R vertices on each iteration to a file
+			pw.println(t + "," + numS + "," + numI + "," + numR);
+
 			if (monitor == 10)
 				cont = false;
 			else {
@@ -118,6 +137,8 @@ public class SIRModel {
 					if (random <= infectionProb) {
 						graph.toggleVertexState(neighbours[j]);
 						newInfected.add(neighbours[j]);
+						numS--;
+						numI++;
 					}
 				}
 			}
@@ -138,6 +159,8 @@ public class SIRModel {
 				graph.toggleVertexState(recoveredVert);
 				newRecovered.add(recoveredVert);
 				infected.remove(i);
+				numI--;
+				numR++;
 			}
 		}
 
