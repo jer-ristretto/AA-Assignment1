@@ -142,11 +142,12 @@ public class IncidenceMatrix extends AbstractGraph
         edgeLabels.remove(edgeIndex);
 
         // Move the indices of behind edges forward
-        for (int i = edgeIndex; i < edgeLabels.size() - 1; i++) {
+        for (int i = edgeIndex; i < edgeLabels.size(); i++) {
             edgeLabels.put(i, edgeLabels.get(i + 1));
             edgeIndices.replace(edgeLabels.get(i), i);
         }
-        edgeLabels.remove(edgeLabels.size() - 1);
+        if (edgeIndex != edgeLabels.size())
+            edgeLabels.remove(edgeLabels.size() - 1);
 
         // Remove the column of the edge from the matrix
         for (int i = 0; i < rowSize; i++) {
