@@ -38,7 +38,7 @@ public class SIRModel {
 		AbstractGraph abstractGraph = (AbstractGraph) graph;
 		DynamicArray<String> infected = new DynamicArray<String>();
 
-		String fileName = "SIR_overtime.csv";
+		String fileName = "data/SIR_overtime.csv";
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new FileWriter(fileName), true);
