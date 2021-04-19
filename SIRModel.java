@@ -51,6 +51,9 @@ public class SIRModel {
             }
         }
 
+		// Print the header
+		pw.println("t,S,I,R");
+
 		// Add existing infected vertices into the infected array
 		for (Map.Entry<String, SIRState> entry : abstractGraph.getSirStates().entrySet()) {
 			if (entry.getValue() == SIRState.I)
