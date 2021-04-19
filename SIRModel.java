@@ -39,12 +39,17 @@ public class SIRModel {
 		DynamicArray<String> infected = new DynamicArray<String>();
 
 		String fileName = "data/SIR_overtime.csv";
+		String fileName2 = "SIR_overtime.csv";
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new FileWriter(fileName), true);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            try {
+                pw = new PrintWriter(new FileWriter(fileName2), true);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
 
 		// Add existing infected vertices into the infected array
 		for (Map.Entry<String, SIRState> entry : abstractGraph.getSirStates().entrySet()) {
